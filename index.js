@@ -81,6 +81,15 @@ app.post("/jokebook/joke/:category", express.json(), (req, res) => {
   res.json({ message: "Joke added successfully" });
 });
 
+app.get("/jokebook/stats", (req, res) => {
+  const counts = {};
+  categories.forEach((category) => {
+    counts[category] = jokeCategories[category].length;
+  });
+
+  res.json(counts);
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
