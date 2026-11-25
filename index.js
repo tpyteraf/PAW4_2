@@ -1,7 +1,10 @@
 "use strict";
 
 const express = require("express");
+const cors = require("cors");
+
 const app = express();
+app.use(cors());
 
 let categories = ["funnyJoke", "lameJoke"];
 
@@ -88,6 +91,27 @@ app.get("/jokebook/stats", (req, res) => {
   });
 
   res.json(counts);
+});
+
+app.get("/jokebook/search", (req, res) => {
+  const query = req.query.word?.toLocaleLowerCase();
+  if (!query) {
+    return res
+      .status(400)
+      .json({ error: "Query parameter 'word' is required" });
+  }
+
+  const results = Object.entries(jokeCategories).flatMap(([category, jokes]) =>
+    jokes
+      .filter(
+        (joke) =>
+          joke.joke.toLocaleLowerCase().includes(query) ||
+          joke.response.toLocaleLowerCase().includes(query),
+      )
+      .map((joke) => ({ ...joke, category })),
+  );
+
+  res.json({ count: results.length, jokes: results });
 });
 
 const PORT = process.env.PORT || 3000;
